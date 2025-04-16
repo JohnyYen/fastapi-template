@@ -26,6 +26,7 @@ class UserLoginResponse(BaseModel):
 
 class UserBase(BaseModel):
     """Campos base compartidos"""
+    username: str = Field(..., example="usuario")
     email: EmailStr = Field(..., example="usuario@example.com")
 
 class UserCreate(UserBase):
