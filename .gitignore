@@ -1,0 +1,91 @@
+# Entorno virtual
+venv/
+env/
+.venv/
+ENV/
+
+# Dependencias de Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Archivos de configuración local
+.env
+.env.local
+.env.dev
+.env.prod
+
+# Archivos de IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*.sublime-workspace
+*.sublime-project
+
+# Archivos de SQLite
+*.sqlite3
+
+# Logs y bases de datos
+*.log
+*.sql
+*.sqlite
+
+# Migraciones de Alembic
+migrations/versions/
+
+# Archivos de caché
+.cache/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Archivos de Docker
+docker-compose.override.yml
+
+# Archivos de pre-commit
+.pre-commit-config.yaml
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
+
+# Archivos de build y distribución
+dist/
+build/
+*.mo
+*.pot
+
+# Archivos de Jupyter Notebook
+.ipynb_checkpoints
+
+# Archivos de Celery
+celerybeat-schedule
+celerybeat.pid
+
+# Archivos de Redis
+dump.rdb
+
+# Archivos de PyCharm
+.idea/
+*.iml
+
+# Archivos de Visual Studio Code
+.vscode/

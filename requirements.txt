@@ -1,0 +1,37 @@
+# Dependencias principales
+fastapi==0.95.2
+uvicorn==0.22.0
+pydantic==1.10.7
+sqlalchemy==2.0.15
+alembic==1.11.1
+databases==0.7.0
+sqlalchemy[asyncio]==2.0.15
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+python-dotenv==1.0.0
+
+# Dependencias de testing
+pytest==7.3.1
+httpx==0.24.0
+pytest-asyncio==0.21.0
+pytest-cov==4.1.0
+
+# Dependencias de seguridad
+bcrypt==4.0.1
+python-multipart==0.0.6
+
+# Dependencias de desarrollo
+black==23.3.0
+flake8==6.0.0
+isort==5.12.0
+pre-commit==3.3.2
+
+# Dependencias de Docker (opcional)
+docker==6.1.2
+
+# Dependencias adicionales (opcionales)
+redis==4.5.5
+celery==5.2.7
+loguru==0.7.0
+fastapi-mail==0.4.1
+fastapi-background-tasks==0.1.0
