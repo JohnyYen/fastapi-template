@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String
-from app.db.base import Base
+from src.db.base import Base
 from sqlalchemy.orm import relationship
 
 class Role(Base):

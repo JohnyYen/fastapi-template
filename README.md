@@ -20,7 +20,7 @@
 
 ```
 my_fastapi_project/
-├── app/
+├── src/
 │   ├── __init__.py
 │   ├── api/                 # Endpoints de la API
 │   │   ├── __init__.py
