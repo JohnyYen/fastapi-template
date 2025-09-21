@@ -8,18 +8,20 @@
 
 - **Estructura modular**: Organización clara de carpetas y archivos.
 - **Autenticación JWT**: Seguridad integrada con tokens JWT.
-- **Base de datos**: Configuración con **SQLAlchemy** y **Alembic** para migraciones.
+- **Base de datos**: Configuración con **SQLAlchemy** (async) y **Alembic** para migraciones.
 - **Validación de datos**: Uso de **Pydantic** para esquemas y validación.
 - **Testing**: Configuración básica con **pytest**.
 - **Docker**: Listo para desplegar con **Docker** y **Docker Compose**.
 - **Documentación automática**: Generación de docs con **Swagger UI** y **ReDoc**.
+- **CRUD completo**: Implementación base de operaciones CRUD con patrón Repository.
+- **Gestión de usuarios**: Endpoints para registro, login y cambio de contraseña.
 
 ---
 
 ## 📂 Estructura del Proyecto
 
 ```
-my_fastapi_project/
+fastapi-template/
 ├── src/
 │   ├── __init__.py
 │   ├── api/                 # Endpoints de la API
@@ -28,18 +30,24 @@ my_fastapi_project/
 │   │   │   ├── __init__.py
 │   │   │   ├── endpoints/   # Definición de endpoints
 │   │   │   │   ├── __init__.py
-│   │   │   │   ├── users.py
+│   │   │   │   ├── user.py
+│   │   │   │   ├── auth.py
 │   │   │   └── routers.py   # Configuración de routers
 │   ├── core/                # Configuraciones centrales
 │   │   ├── __init__.py
 │   │   ├── config.py        # Configuración de variables de entorno
-│   │   └── security.py      # Lógica de autenticación y seguridad
+│   │   ├── security.py      # Lógica de autenticación y seguridad
+│   │   ├── deps.py          # Dependencias (get_current_user, etc)
+│   │   └── exceptions.py    # Excepciones personalizadas
 │   ├── models/              # Modelos de datos (SQLAlchemy)
 │   │   ├── __init__.py
 │   │   ├── user.py
+│   │   ├── role.py
 │   ├── schemas/             # Esquemas Pydantic
 │   │   ├── __init__.py
 │   │   ├── user.py
+│   │   ├── auth.py
+│   │   ├── base.py
 │   ├── services/            # Lógica de negocio
 │   │   ├── __init__.py
 │   │   ├── user_service.py
@@ -53,41 +61,19 @@ my_fastapi_project/
 │   └── utils/               # Utilidades comunes
 │       ├── __init__.py
 │       └── helpers.py
-├── tests/                   # Pruebas unitarias y de integración
-│   ├── __init__.py
-│   ├── test_users.py
 ├── migrations/              # Migraciones de la base de datos (Alembic)
+│   ├── README
+│   ├── env.py
+│   ├── script.py.mako
+│   └── versions/
+├── tests/                   # Pruebas unitarias y de integración
 ├── requirements.txt         # Dependencias del proyecto
-├── .env                     # Variables de entorno
+├── .env.example            # Ejemplo de variables de entorno
 ├── .gitignore               # Archivos ignorados por Git
 ├── Dockerfile               # Configuración para Docker
-|── main.py                  # Punto de entrada de la aplicación
-└── README.md                # Documentación del proyecto
-```
-
----
-
-## 🛠️ Configuración
-
-### Variables de Entorno
-
-El proyecto utiliza variables de entorno para configurar diferentes aspectos del proyecto. Estas variables se encuentran en el archivo `.env`:
-
-```
-# Configuración de la base de datos
-DB_HOST=localhost
-DB_PORT=5432
-DB_NAME=my_database
-DB_USER=my_user
-DB_PASSWORD=my_password
-```
-
-### Dependencias
-
-El proyecto utiliza las siguientes dependencias:
-
--
 ├── docker-compose.yml       # Configuración para Docker Compose
+├── alembic.ini             # Configuración de Alembic
+├── main.py                  # Punto de entrada de la aplicación
 └── README.md                # Documentación del proyecto
 ```
 
@@ -110,8 +96,8 @@ Sigue estos pasos para configurar el proyecto en tu máquina local:
 
 1. **Clona el repositorio**:
    ```bash
-   git clone https://github.com/tu-usuario/mi-proyecto-fastapi.git
-   cd mi-proyecto-fastapi
+   git clone https://github.com/tu-usuario/fastapi-template.git
+   cd fastapi-template
    ```
 
 2. **Crea un entorno virtual** (opcional pero recomendado):
@@ -126,23 +112,26 @@ Sigue estos pasos para configurar el proyecto en tu máquina local:
    ```
 
 4. **Configura las variables de entorno**:
-   - Crea un archivo `.env` en la raíz del proyecto.
-   - Agrega las siguientes variables:
+   - Copia el archivo `.env.example` a `.env`:
+     ```bash
+     cp .env.example .env
+     ```
+   - Edita `.env` y configura tus variables:
      ```plaintext
-     DATABASE_URL=sqlite:///./test.db
-     SECRET_KEY=my-secret-key
+     DATABASE_URL=sqlite+aiosqlite:///./test.db
+     SECRET_KEY=tu_clave_secreta_aqui
      ALGORITHM=HS256
      ACCESS_TOKEN_EXPIRE_MINUTES=30
      ```
 
-5. **Ejecuta las migraciones** (si usas Alembic):
+5. **(Opcional) Configura las migraciones de base de datos con Alembic**:
    ```bash
    alembic upgrade head
    ```
 
 6. **Inicia la aplicación**:
    ```bash
-   uvicorn app.main:app --reload
+   uvicorn main:app --reload
    ```
 
 7. **Accede a la documentación**:
@@ -152,22 +141,116 @@ Sigue estos pasos para configurar el proyecto en tu máquina local:
 
 ---
 
+## 🔐 Autenticación
+
+La API incluye un sistema completo de autenticación basado en JWT:
+
+### Endpoints de Autenticación
+
+1. **Registro de usuario**: `POST /api/v1/auth/register`
+   - Crea un nuevo usuario en el sistema
+   - Requiere: username, email, password
+
+2. **Inicio de sesión**: `POST /api/v1/auth/login`
+   - Autentica al usuario y devuelve un token JWT
+   - Requiere: email, password
+
+3. **Cambio de contraseña**: `POST /api/v1/auth/change-password`
+   - Cambia la contraseña del usuario autenticado
+   - Requiere: current_password, new_password
+   - Necesita token JWT válido
+
+### Uso del Token JWT
+
+Después de iniciar sesión, usa el token en las solicitudes protegidas:
+
+```
+Authorization: Bearer TU_TOKEN_JWT_AQUI
+```
+
+---
+
+## 🗄️ Base de Datos
+
+El proyecto utiliza SQLAlchemy con soporte asíncrono:
+
+- **Motor de base de datos**: SQLite (por defecto, configurable)
+- **ORM**: SQLAlchemy 2.0+
+- **Migraciones**: Alembic
+
+### Modelos Disponibles
+
+1. **User**: Modelo de usuario con campos:
+   - id (Integer, PK)
+   - username (String, único)
+   - email (String, único)
+   - hashed_password (String)
+   - is_active (Boolean)
+   - created_at (DateTime)
+   - updated_at (DateTime)
+   - role_id (FK a Role)
+
+2. **Role**: Modelo de roles de usuario:
+   - id (Integer, PK)
+   - name_role (String, único)
+
+### Repositorios
+
+Cada modelo tiene un repositorio asociado que implementa operaciones CRUD:
+
+- `UserRepository`: Operaciones CRUD para usuarios
+- Métodos especiales: authenticate, get_by_email, get_by_username
+
+---
+
+## 🔄 CRUD Base
+
+El proyecto implementa un patrón Repository con servicios para operaciones CRUD:
+
+### UserRepository
+Implementa operaciones básicas de base de datos:
+- `get_by_id()`: Obtiene usuario por ID
+- `get_all()`: Obtiene lista de usuarios
+- `create()`: Crea nuevo usuario
+- `update()`: Actualiza usuario
+- `delete()`: Eliminación suave (soft delete)
+- `authenticate()`: Autenticación de usuario
+
+### UserService
+Capa de servicio que encapsula la lógica de negocio:
+- `get_user_by_id()`: Obtiene usuario por ID
+- `get_all_users()`: Obtiene lista de usuarios
+- `create_user()`: Crea nuevo usuario
+- `update_user()`: Actualiza usuario
+- `delete_user()`: Elimina usuario
+- `change_user_password()`: Cambia contraseña de usuario
+
+---
+
 ## 🐳 Despliegue con Docker
 
 Si prefieres usar Docker, sigue estos pasos:
 
 1. **Construye la imagen**:
    ```bash
-   docker build -t mi-proyecto-fastapi .
+   docker build -t fastapi-template .
    ```
 
 2. **Ejecuta el contenedor**:
    ```bash
-   docker run -d -p 8000:80 mi-proyecto-fastapi
+   docker run -d -p 8000:80 fastapi-template
    ```
 
 3. **Accede a la aplicación**:
    - Abre tu navegador y ve a http://127.0.0.1:8000.
+
+### Docker Compose
+
+También puedes usar docker-compose:
+
+```bash
+docker-compose up -d
+```
 
 ---
 
@@ -192,6 +275,7 @@ Para ejecutar las pruebas unitarias y de integración:
 - **FastAPI Official Documentation**: https://fastapi.tiangolo.com/
 - **SQLAlchemy Documentation**: https://www.sqlalchemy.org/
 - **Pydantic Documentation**: https://pydantic-docs.helpmanual.io/
+- **Alembic Documentation**: https://alembic.sqlalchemy.org/
 - **Docker Documentation**: https://docs.docker.com/
 
 ---

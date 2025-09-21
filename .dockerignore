@@ -1,0 +1,39 @@
+# Git
+.git
+.gitignore
+
+# Docker
+Dockerfile
+.dockerignore
+
+# Entorno virtual
+.venv
+venv/
+env/
+
+# Ficheros de Python compilados y caches
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Bases de datos locales
+*.db
+*.sqlite3
+
+# Ficheros de configuración de IDEs
+.vscode/
+.idea/
+
+# Ficheros de entorno
+.env
+
+# Ficheros de testing y cobertura
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Ficheros de build y distribución
+dist/
+build/
+*.egg-info/

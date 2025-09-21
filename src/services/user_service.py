@@ -111,3 +111,31 @@ class UserService:
             El usuario si se encuentra, de lo contrario None.
         """
         return await self.user_repo.get_by_email(email)
+
+    async def change_user_password(self, user_id: int, current_password: str, new_password: str) -> bool:
+        """
+        Cambia la contraseña de un usuario después de verificar la contraseña actual.
+
+        Args:
+            user_id: ID del usuario.
+            current_password: Contraseña actual del usuario.
+            new_password: Nueva contraseña del usuario.
+
+        Returns:
+            True si la contraseña se cambió correctamente.
+
+        Raises:
+            NotFoundException: Si el usuario no se encuentra.
+            InvalidCredentialsException: Si la contraseña actual es incorrecta.
+        """
+        user = await self.user_repo.get_by_id(user_id)
+        if not user:
+            raise NotFoundException("Usuario no encontrado")
+            
+        if not verify_password(current_password, user.hashed_password):
+            raise InvalidCredentialsException("La contraseña actual es incorrecta")
+            
+        # Update the password
+        user_update = UserUpdate(password=new_password)
+        updated_user = await self.user_repo.update(user_id, user_update)
+        return updated_user is not None

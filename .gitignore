@@ -42,6 +42,7 @@ wheels/
 
 # Archivos de SQLite
 *.sqlite3
+*.db
 
 # Logs y bases de datos
 *.log

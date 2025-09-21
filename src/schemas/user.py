@@ -83,7 +83,7 @@ class UserRoleResponse(BaseModel):
 class UserResponse(UserBase, DateTimeSchema):
     """Esquema para respuesta de usuario"""
     id: int
-    is_active: bool
+    is_active: bool = True
     role: Optional[UserRoleResponse] = None
 
     class Config:
